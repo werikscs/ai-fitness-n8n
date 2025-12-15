@@ -2,6 +2,8 @@
 
 Instruções para instalar e executar o serviço n8n usando Docker Compose.
 
+Em anexo, imagens dos ciclos RAG e Chat no n8n. Assim como o .json completo do n8n.
+
 ## Pré-requisitos
 - Docker
 - Docker Compose
