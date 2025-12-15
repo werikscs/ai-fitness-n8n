@@ -1,0 +1,777 @@
+{
+  "name": "ai-fitness-2",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "8e62aeb0-0076-4e2c-8d0f-ff3ac031513f",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "value": "1_-d-BjKviUmjQeo4twwnQZTQxatNwNik",
+            "mode": "list",
+            "cachedResultName": "base-conhecimento",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/1_-d-BjKviUmjQeo4twwnQZTQxatNwNik"
+          }
+        },
+        "options": {
+          "fields": [
+            "mimeType",
+            "webViewLink",
+            "id",
+            "name"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        208,
+        0
+      ],
+      "id": "bb2597b9-85af-447a-8619-3954285b7d65",
+      "name": "Search files and folders",
+      "alwaysOutputData": false,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "lVNKJK0Us9aZN2MR",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        416,
+        0
+      ],
+      "id": "9db415d2-aa96-4d11-a152-fa3988c5d4f4",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ab1d4fbc-73d0-45aa-8917-7247ae52e402",
+              "name": "file_id",
+              "value": "={{ $('Search files and folders').item.json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "79a814eb-0952-4479-bea1-d9aee611c8a0",
+              "name": "file_name",
+              "value": "={{ $('Search files and folders').item.json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "79897448-aff8-4e15-b0e1-c4b8639a58ec",
+              "name": "file_type",
+              "value": "={{ $('Search files and folders').item.json.mimeType }}",
+              "type": "string"
+            },
+            {
+              "id": "c4f00188-ae5b-44d1-888b-6335a1bd762d",
+              "name": "file_url",
+              "value": "={{ $('Search files and folders').item.json.webViewLink }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        96
+      ],
+      "id": "8de6bf9c-11b6-4916-91a9-47b2ac26a04a",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.file_id }}",
+          "mode": "id"
+        },
+        "options": {
+          "binaryPropertyName": "data",
+          "googleFileConversion": {
+            "conversion": {
+              "docsToFormat": "application/pdf"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1040,
+        96
+      ],
+      "id": "5dbc010e-793b-4487-939c-e3605075e99f",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "lVNKJK0Us9aZN2MR",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.file_type }}",
+                    "rightValue": "text/plain",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "835d924c-067f-4a7a-ba39-70a86c99ddfb"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "972ef564-2fda-4943-94a6-d4c84b717539",
+                    "leftValue": "={{ $json.file_type }}",
+                    "rightValue": "application/pdf",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "0575396d-7e5d-4430-b58d-30287511489e",
+                    "leftValue": "={{ $json.file_type }}",
+                    "rightValue": "application/vnd.google-apps.document",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        1248,
+        96
+      ],
+      "id": "4fb8812a-53d4-4f48-a31e-e2c334b5e2c9",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        1472,
+        112
+      ],
+      "id": "d1c6ee5c-12c9-4a05-b17c-77359b7d439d",
+      "name": "Extract from PDF"
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        1472,
+        336
+      ],
+      "id": "07cb6329-6519-445f-b137-61d85cfeab2e",
+      "name": "Extract from Text File"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        848,
+        -368
+      ],
+      "id": "3001dda6-8a46-4bd3-919d-0a361ea23a1a",
+      "name": "Embeddings Google Gemini",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "9bttmtQIub9pKZKZ",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonMode": "expressionData",
+        "jsonData": "={{ $('Extract from Text File').item.json.data }}",
+        "textSplittingMode": "custom",
+        "options": {
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "=file_id",
+                "value": "={{ $('Edit Fields').item.json.file_id }}"
+              },
+              {
+                "name": "file_name",
+                "value": "={{ $('Edit Fields').item.json.file_name }}"
+              },
+              {
+                "name": "file_type",
+                "value": "={{ $('Edit Fields').item.json.file_type }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        992,
+        -368
+      ],
+      "id": "458f2d60-7bfd-44dc-b069-e45e4e376073",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "chunkOverlap": 200,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        992,
+        -160
+      ],
+      "id": "6442c022-530b-49bf-922f-a292113f8199",
+      "name": "Recursive Character Text Splitter"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "tableId": "documents",
+        "filterType": "string",
+        "filterString": "=metadata->>file_id=like.*{{$json.file_id}}*"
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        816,
+        -32
+      ],
+      "id": "f534db6f-9faf-41dc-a2b5-1b3e0539686f",
+      "name": "Delete a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "vMXZDurlIrrJOzEJ",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        -1008
+      ],
+      "id": "c4a486af-6bc6-4e47-8acb-2d0eb06277cd",
+      "name": "When chat message received",
+      "webhookId": "94713740-c557-46d4-a19d-0acc8b398ad3"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash-lite-001",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        -800
+      ],
+      "id": "009172c9-e758-43cf-ab48-0988e25a8034",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "9bttmtQIub9pKZKZ",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 50
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        224,
+        -800
+      ],
+      "id": "e498b358-6dc6-4ae4-8bcb-a7ba3a7296ad",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Use essa ferramenta para obter informações sobre a tabela documents no Supabase e fornecer uma análise inteligente e ensinar o usuário sobre assuntos relacionados à atividade física.",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        352,
+        -800
+      ],
+      "id": "da11cb83-04f8-477c-a017-2a51bfaff246",
+      "name": "Supabase Vector Retrieve",
+      "credentials": {
+        "supabaseApi": {
+          "id": "vMXZDurlIrrJOzEJ",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "options": {
+          "queryName": "match_documents"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        848,
+        -576
+      ],
+      "id": "06c6f9cd-1e86-439f-8ab1-d8c1acb69fc6",
+      "name": "Supabase Vector Insert",
+      "credentials": {
+        "supabaseApi": {
+          "id": "vMXZDurlIrrJOzEJ",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "Você é um especialista em saúde e atividade física.\n\nBase nos seguintes dados do usuário:\n- Idade\n- Peso\n- Periodicidade dos treinos (número de dias na semana, de 2 a 6).\n- Objetivo principal (por exemplo: hipertrofia, emagrecimento, força, condicionamento).\n\nGerar um plano de treino completo e detalhado:\n- O plano deve conter 12 treinos distintos, organizados de acordo com a periodicidade e o objetivo do usuário. Por exemplo, se o usuário treina 4 dias por semana, o agente deverá gerar um plano para 3 semanas (4 treinos x 3 semanas = 12 treinos).\n- Também de dicas ao usuário, quando possível.\n- Organize o treino de forma intuitiva. Diagrame o texto de forma fácil de vizualizar.\n- Use apenas o conteúdo vindo do supabase.\n\nCada treino deve incluir:\n- Nome do treino (por exemplo: \"Treino A - Peito e Tríceps\").\n- Lista de exercícios (com pelo menos 4 a 6 exercícios por treino).\n- Séries e repetições recomendadas para cada exercício, adaptadas ao objetivo.\n- Semanas organizadas usando números\n\nApós:\n- Responda o usuário com um breve resumo do conteúdo do pdf\n- Gere um arquivo no google docs contendo o treino. Use a ferramenta apropriada."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        208,
+        -1008
+      ],
+      "id": "8c9ea1b1-ca60-46d9-a48d-82d2d71e43f0",
+      "name": "AI Fitness"
+    },
+    {
+      "parameters": {
+        "templateId": {
+          "__rl": true,
+          "value": "1570613",
+          "mode": "list",
+          "cachedResultName": "Certificate Example (ID: 1570613)"
+        },
+        "data": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Data', ``, 'json') }}",
+        "additionalFields": {}
+      },
+      "type": "@pdfgeneratorapi/n8n-nodes-pdf-generator-api.pdfGeneratorApiTool",
+      "typeVersion": 1,
+      "position": [
+        640,
+        -800
+      ],
+      "id": "620efc67-5d42-43a2-8ebd-405c914b8409",
+      "name": "Generate a PDF document in PDF Generator API",
+      "credentials": {
+        "pdfGeneratorApi": {
+          "id": "M6RMhNFOZARkgGef",
+          "name": "PDF Generator account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        80,
+        -800
+      ],
+      "id": "d49f4c4a-e2d5-4e07-bdf9-4eb27bb78dab",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "Knef6gt04SYMroDx",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "createFromText",
+        "content": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('File_Content', ``, 'string') }}",
+        "name": "=treino_{{ $now.format('yyyyMMdd_HHmmss') }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1sRnQMvU7Jp0JV-WgloPut8URDCQfdeck",
+          "mode": "list",
+          "cachedResultName": "treinos-gerados",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1sRnQMvU7Jp0JV-WgloPut8URDCQfdeck"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDriveTool",
+      "typeVersion": 3,
+      "position": [
+        832,
+        -800
+      ],
+      "id": "412d2979-4e79-447b-a1c8-8f371b4b56b4",
+      "name": "Create file from text in Google Drive",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "lVNKJK0Us9aZN2MR",
+          "name": "Google Drive account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Search files and folders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search files and folders": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Supabase Vector Insert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Delete a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Extract from Text File",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Extract from PDF",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Extract from PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from PDF": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from Text File": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Insert",
+            "type": "ai_embedding",
+            "index": 0
+          },
+          {
+            "node": "Supabase Vector Retrieve",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Supabase Vector Insert",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete a row": {
+      "main": [
+        []
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Fitness",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        []
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Fitness",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Vector Retrieve": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Fitness",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate a PDF document in PDF Generator API": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Fitness",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create file from text in Google Drive": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Fitness",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b3eae50f-0729-4ef7-8b29-ae730325c6f0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5a657c68de34bcbd4715d9e543f4e2258abaeb2c0b05b96b8685a7375222670b"
+  },
+  "id": "3yKW7FbAI9cCageU",
+  "tags": []
+}
